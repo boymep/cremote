@@ -1,0 +1,47 @@
+{
+  "name": "cremote",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Remote control for Claude Code sessions from a phone",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boymep/cremote.git"
+  },
+  "homepage": "https://github.com/boymep/cremote#readme",
+  "bugs": {
+    "url": "https://github.com/boymep/cremote/issues"
+  },
+  "files": [
+    "dist",
+    "web/dist",
+    "hooks",
+    "bin",
+    "LICENSE",
+    "README.md"
+  ],
+  "bin": {
+    "cremote": "bin/cremote"
+  },
+  "scripts": {
+    "build:server": "tsc -p tsconfig.json",
+    "build:web": "npm --prefix web run build",
+    "build": "npm run build:server && npm run build:web",
+    "prepack": "npm run build",
+    "start": "node dist/server/cli.js start",
+    "dev": "tsc -p tsconfig.json --watch",
+    "deploy:web": "npm run build:web && rsync -az --delete web/dist/ \"${CREMOTE_DEPLOY:?set CREMOTE_DEPLOY=user@host:/var/www/cremote/}\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.312",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/ws": "^8.18.2",
+    "typescript": "^7.0.2"
+  }
+}

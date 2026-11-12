@@ -1,0 +1,1015 @@
+:root {
+  /* Системные цвета iOS (светлая тема). Имена токенов не менять: на них завязаны все экраны. */
+  --bg: #f2f2f7; /* systemGroupedBackground */
+  --bg-elev: #ffffff; /* secondarySystemGroupedBackground — ячейки */
+  --bg-sunken: #e9e9ee; /* заливка дорожек, кода */
+  --bg-user: #e9e9eb;
+  --fg: #000000; /* label */
+  --fg-muted: rgb(60 60 67 / 0.6); /* secondaryLabel */
+  --fg-faint: rgb(60 60 67 / 0.3); /* tertiaryLabel */
+  --border: rgb(60 60 67 / 0.29); /* separator */
+  --border-strong: #c6c6c8; /* opaqueSeparator */
+  --accent: #c96442;
+  --accent-fg: #ffffff;
+  --accent-soft: #f6e4dc;
+  --ok: #248a3d;
+  --ok-soft: #dff3e4;
+  --warn: #b25000;
+  --warn-soft: #fff0dc;
+  --danger: #d70015;
+  --danger-soft: #ffe5e3;
+  --info: #0066d6;
+  --info-soft: #e0edff;
+  --diff-add: #e3f4e6;
+  --diff-add-fg: #1d5c33;
+  --diff-del: #fbe5e3;
+  --diff-del-fg: #8c2a20;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 16px rgb(0 0 0 / 0.08);
+
+  /* Дополнительные токены iOS. */
+  --bar-bg: rgb(249 249 249 / 0.86); /* полупрозрачная панель навигации */
+  --fill: rgb(120 120 128 / 0.2); /* systemFill */
+  --fill-2: rgb(120 120 128 / 0.12); /* tertiarySystemFill */
+  --cell-press: #d1d1d6; /* подсветка нажатой ячейки */
+  --switch-on: #34c759;
+  --seg-on: #ffffff; /* выбранный сегмент */
+
+  /* ---------- Система вёрстки: всё ниже — единственный источник размеров. ---------- */
+
+  /* Шрифты. */
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Три веса: обычный, полужирный (заголовки и акценты), жирный (только крупный заголовок). */
+  --w-regular: 400;
+  --w-semibold: 600;
+  --w-bold: 700;
+
+  /* Роли текста. Интерлиньяж кратен 4 — строки ложатся на сетку. */
+  --t-large: var(--w-bold) 34px / 40px var(--font-display); /* крупный заголовок */
+  --t-nav: var(--w-semibold) 17px / 24px var(--font); /* заголовок панели */
+  --t-body: var(--w-regular) 17px / 24px var(--font); /* основной текст, ячейки */
+  --t-callout: var(--w-regular) 16px / 24px var(--font); /* поля ввода: при 16px iOS не зумит */
+  --t-subhead: var(--w-regular) 15px / 20px var(--font); /* подписи ячеек, кнопки в карточках */
+  --t-footnote: var(--w-regular) 13px / 20px var(--font); /* подписи разделов */
+  --t-caption: var(--w-regular) 12px / 16px var(--font); /* метки, счётчики */
+  --t-mono: var(--w-regular) 13px / 20px var(--mono); /* код, пути */
+  --t-mono-caption: var(--w-regular) 12px / 16px var(--mono); /* путь в шапке чата */
+
+  /* Отступы: шаг 4. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-12: 48px;
+
+  --gutter: var(--s-4); /* поле экрана */
+  --section-gap: var(--s-8); /* между разделами списка */
+  --tap: 44px; /* минимальная зона нажатия */
+  --nav-h: 44px; /* высота панели навигации без safe area */
+  --cell-min-h: 48px; /* ячейка в одну строку: 24 + 12 + 12 */
+  --cell-px: var(--s-4);
+  --cell-py: var(--s-3);
+  --btn-filled-h: 48px;
+
+  /* Скругления. */
+  --radius-group: 16px; /* сгруппированный список, карточка, тост */
+  --radius-nested: 12px; /* всё внутри группы: строка инструмента, код, кнопка, поле */
+  --radius-segment: 10px; /* сегмент внутри переключателя: 12 − отступ 2 */
+  --radius-bubble: 20px; /* пузырь сообщения и поле ввода (при высоте 40 — капсула) */
+  --radius-tail: 4px; /* хвост пузыря, код в строке */
+  --radius-full: 999px; /* метки, счётчики */
+
+  /* Значки: толщина линии одна на все размеры (см. .ios-icon). */
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-stroke: 1.5px;
+  --icon-stroke-heavy: 2px; /* шевроны, галочки, стрелка отправки */
+  --dot: 8px; /* точка статуса */
+  --avatar: 32px;
+
+  /* Значок 24 в зоне 44: поле 10. Панель сдвинута на 6, чтобы видимый край стоял на гуттере. */
+  --nav-btn-px: calc((var(--tap) - var(--icon-lg)) / 2);
+  --nav-row-px: calc(var(--gutter) - var(--nav-btn-px));
+
+  /* +12px: шапки не прижимаются к статус-бару на всех экранах. */
+  --safe-top: calc(env(safe-area-inset-top, 0px) + var(--s-3));
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --bg-elev: #1c1c1e;
+    --bg-sunken: #2c2c2e;
+    --bg-user: #2c2c2e;
+    --fg: #ffffff;
+    --fg-muted: rgb(235 235 245 / 0.6);
+    --fg-faint: rgb(235 235 245 / 0.3);
+    --border: rgb(84 84 88 / 0.65);
+    --border-strong: #38383a;
+    --accent: #e0805f;
+    --accent-fg: #ffffff;
+    --accent-soft: #3a2219;
+    --ok: #30d158;
+    --ok-soft: #12301b;
+    --warn: #ff9f0a;
+    --warn-soft: #3a2a0c;
+    --danger: #ff453a;
+    --danger-soft: #3d1614;
+    --info: #0a84ff;
+    --info-soft: #0c2440;
+    --diff-add: #11301b;
+    --diff-add-fg: #9fdcb2;
+    --diff-del: #3d1715;
+    --diff-del-fg: #f2a59b;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 4px 16px rgb(0 0 0 / 0.4);
+
+    --bar-bg: rgb(22 22 23 / 0.86);
+    --fill: rgb(120 120 128 / 0.36);
+    --fill-2: rgb(118 118 128 / 0.24);
+    --cell-press: #3a3a3c;
+    --switch-on: #30d158;
+    --seg-on: #636366;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* Без зума двойным тапом и без задержки клика; щипок остаётся. */
+  touch-action: manipulation;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: var(--t-body);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  /* Документ не прокручивается и не пружинит ни на одном экране: прокручиваются только
+     внутренние области экранов (overscroll-behavior: contain). */
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+#app {
+  height: 100%;
+}
+
+/* Элементы управления — как в нативном приложении: без выделения текста и меню по долгому
+   нажатию. Текст сообщений остаётся выделяемым. */
+button,
+.btn,
+header,
+label,
+select,
+[role='button'] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+a {
+  -webkit-touch-callout: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* 16px на полях ввода: iOS не зумит страницу при фокусе. */
+input,
+textarea,
+select {
+  font: var(--t-callout);
+}
+
+a {
+  color: var(--accent);
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--mono);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Кнопки ---------- */
+
+/* Одна кнопка для карточек, подтверждений и служебных действий: высота 44, скругление вложенного блока. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  border: 0;
+  border-radius: var(--radius-nested);
+  background: var(--fill-2);
+  color: var(--fg);
+  font: var(--t-subhead);
+  font-weight: var(--w-semibold);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  touch-action: manipulation;
+  /* Нажатие: мгновенно тускнеет, отпускание — плавно возвращается. */
+  transition: opacity 180ms ease-out;
+}
+.btn:active:not(:disabled) {
+  opacity: 0.55;
+  transition: none;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.btn-tint {
+  color: var(--accent);
+}
+.btn-destructive {
+  color: var(--danger);
+}
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--accent);
+}
+.btn-block {
+  width: 100%;
+}
+/* Ряд равных кнопок. */
+.btn-row {
+  display: flex;
+  gap: var(--s-2);
+}
+.btn-row > .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ---------- Переходы между экранами (View Transitions, см. runNavTransition) ---------- */
+/* push: новый экран въезжает справа, старый уходит на 30% влево и темнеет; pop — наоборот. */
+
+html[data-nav]::view-transition-old(root),
+html[data-nav]::view-transition-new(root) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+html[data-nav='push']::view-transition-old(root) {
+  animation-name: nav-under-out;
+}
+html[data-nav='push']::view-transition-new(root) {
+  animation-name: nav-top-in;
+  box-shadow: -6px 0 24px rgb(0 0 0 / 0.18);
+}
+html[data-nav='pop']::view-transition-old(root) {
+  animation-name: nav-top-out;
+  box-shadow: -6px 0 24px rgb(0 0 0 / 0.18);
+  z-index: 1;
+}
+html[data-nav='pop']::view-transition-new(root) {
+  animation-name: nav-under-in;
+}
+@keyframes nav-top-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes nav-top-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes nav-under-out {
+  to {
+    transform: translateX(-30%);
+    filter: brightness(0.8);
+  }
+}
+@keyframes nav-under-in {
+  from {
+    transform: translateX(-30%);
+    filter: brightness(0.8);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------- Поля ---------- */
+
+/* Рамка — внутренней тенью: не занимает места, поэтому высота поля остаётся на сетке. */
+.field {
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--s-2) var(--s-3);
+  border: 0;
+  border-radius: var(--radius-nested);
+  background: var(--bg-sunken);
+  display: block;
+}
+.field:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+textarea.field {
+  resize: none;
+}
+
+.label {
+  display: block;
+  font: var(--t-subhead);
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+.muted {
+  color: var(--fg-muted);
+}
+
+.mono {
+  font: var(--t-mono);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Значки ---------- */
+
+/* Линейный значок: толщина задаётся в пикселях экрана и не зависит от размера значка. */
+.ios-icon {
+  display: block;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ios-icon * {
+  vector-effect: non-scaling-stroke;
+}
+.ios-icon.heavy {
+  stroke-width: var(--icon-stroke-heavy);
+}
+.ios-spinner {
+  flex: none;
+  display: block;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  border-radius: 50%;
+  border: 2px solid var(--fill);
+  border-top-color: var(--accent);
+  animation: ios-spin 0.8s linear infinite;
+}
+@keyframes ios-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Точка статуса: одна на все экраны. */
+.ios-dot {
+  flex: none;
+  display: block;
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  background: currentColor;
+}
+/* Блочно-строчный, а не flex: базовая линия статуса — это базовая линия его текста. */
+.ios-status {
+  display: inline-block;
+  white-space: nowrap;
+}
+.ios-status::before {
+  content: '';
+  display: inline-block;
+  width: var(--dot);
+  height: var(--dot);
+  margin-right: var(--s-1);
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+.ios-status.awaiting_input {
+  color: var(--ok);
+}
+.ios-status.working {
+  color: var(--warn);
+}
+.ios-status.working::before {
+  animation: ios-blink 1.2s ease-in-out infinite;
+}
+.ios-status.live,
+.ios-status.idle {
+  color: var(--info);
+}
+/* Открытая вкладка определена по времени изменения — кольцо вместо сплошной точки. */
+.ios-status.guess::before {
+  background: none;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+@keyframes ios-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ios-status.working::before {
+    animation: none;
+  }
+}
+/* Разделитель «·» в строке подписи. */
+.ios-sep {
+  flex: none;
+  color: var(--fg-faint);
+}
+
+/* ---------- iOS: панель навигации, списки, ячейки, переключатели ---------- */
+
+/* Панель навигации: прозрачная над крупным заголовком, «стекло» после прокрутки (.scrolled). */
+.ios-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
+  background: transparent;
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+}
+.ios-nav.scrolled,
+.ios-nav.solid {
+  background: var(--bar-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 0.5px 0 var(--border);
+}
+.ios-nav-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: var(--nav-h);
+  padding: 0 var(--nav-row-px);
+  max-width: 760px;
+  margin: 0 auto;
+}
+.ios-nav-left,
+.ios-nav-right {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.ios-nav-right {
+  justify-content: flex-end;
+}
+.ios-nav-title {
+  margin: 0;
+  font: var(--t-nav);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60vw;
+  transition: opacity 160ms ease;
+}
+/* Кнопка панели: текст или значок цвета акцента. Видимый край стоит на гуттере экрана. */
+.ios-nav-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  min-width: var(--tap);
+  height: var(--tap);
+  padding: 0 var(--nav-btn-px);
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: var(--t-body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 180ms ease-out;
+}
+.ios-nav-btn:active:not(:disabled) {
+  opacity: 0.35;
+  transition: none;
+}
+.ios-nav-btn:disabled {
+  color: var(--fg-faint);
+  cursor: default;
+}
+.ios-nav-btn.strong {
+  font-weight: var(--w-semibold);
+}
+.ios-nav-btn.back {
+  justify-content: flex-start;
+}
+
+.ios-large-title {
+  margin: 0 auto;
+  padding: 0 calc(var(--gutter) + var(--safe-right)) var(--s-2) calc(var(--gutter) + var(--safe-left));
+  font: var(--t-large);
+  max-width: 760px;
+}
+
+/* Сгруппированный список со скруглёнными краями (insetGrouped). */
+.ios-section {
+  margin: 0 auto var(--section-gap);
+  padding: 0 calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
+  max-width: 760px;
+  min-width: 0;
+}
+.ios-section-header {
+  margin: 0;
+  padding: 0 var(--cell-px) var(--s-1);
+  font: var(--t-footnote);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ios-section-footer {
+  margin: 0;
+  padding: var(--s-1) var(--cell-px) 0;
+  font: var(--t-footnote);
+  color: var(--fg-muted);
+  overflow-wrap: anywhere;
+}
+.ios-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-elev);
+  border-radius: var(--radius-group);
+  overflow: hidden;
+}
+.ios-list > * {
+  position: relative;
+}
+/* Разделитель между ячейками с отступом слева, как в UITableView. */
+.ios-list > * + *::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--sep-inset, var(--cell-px));
+  right: 0;
+  height: 0.5px;
+  background: var(--border);
+  z-index: 1;
+  pointer-events: none;
+}
+.ios-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: var(--cell-min-h);
+  padding: var(--cell-py) var(--cell-px);
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: var(--t-body);
+  text-align: left;
+  text-decoration: none;
+  min-width: 0;
+  transition: background-color 250ms ease-out;
+}
+a.ios-cell,
+button.ios-cell,
+label.ios-cell {
+  cursor: pointer;
+}
+a.ios-cell:active,
+button.ios-cell:active:not(:disabled),
+label.ios-cell:active {
+  background: var(--cell-press);
+  transition: none;
+}
+button.ios-cell:disabled {
+  color: var(--fg-faint);
+  cursor: default;
+}
+.ios-cell-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ios-cell-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ios-cell-sub {
+  font: var(--t-subhead);
+  color: var(--fg-muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ios-cell-value {
+  flex: none;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.ios-cell.tint {
+  color: var(--accent);
+}
+.ios-cell.destructive {
+  color: var(--danger);
+}
+.ios-cell.center {
+  justify-content: center;
+}
+/* Кружок с буквой аккаунта. Отрицательные поля — чтобы ячейка осталась высотой 48. */
+.ios-avatar {
+  flex: none;
+  width: var(--avatar);
+  height: var(--avatar);
+  margin: calc(var(--s-1) * -1) 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  font: var(--t-subhead);
+  font-weight: var(--w-semibold);
+}
+/* Шеврон «>» справа от ячейки, которая ведёт на другой экран. */
+.ios-chevron {
+  flex: none;
+  width: 8px;
+  height: var(--icon-sm);
+  background: var(--fg-faint);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 16'%3E%3Cpath d='M1 2l6 6-6 6' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 16'%3E%3Cpath d='M1 2l6 6-6 6' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+/* Галочка выбранного пункта. */
+.ios-check {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8.5l4 4 8-9' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8.5l4 4 8-9' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.ios-check.off {
+  visibility: hidden;
+}
+
+/* Поле ввода внутри ячейки: без рамки, на всю ширину. */
+.ios-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  min-height: var(--s-6);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: var(--t-callout);
+  outline: none;
+  display: block;
+}
+input.ios-input {
+  height: var(--s-6);
+}
+.ios-input::placeholder {
+  color: var(--fg-faint);
+}
+textarea.ios-input {
+  resize: none;
+}
+
+/* Переключатель как UISwitch: <input type="checkbox" class="ios-switch" role="switch">.
+   Поля −4: ячейка остаётся высотой 48. */
+.ios-switch {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 32px;
+  margin: calc(var(--s-1) * -1) 0;
+  border-radius: var(--radius-full);
+  background: var(--fill);
+  cursor: pointer;
+  transition: background-color 250ms ease;
+}
+.ios-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.15), 0 3px 1px rgb(0 0 0 / 0.06);
+  transition: transform 250ms cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.ios-switch:checked {
+  background: var(--switch-on);
+}
+.ios-switch:checked::before {
+  transform: translateX(20px);
+}
+.ios-switch:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Сегментированный переключатель (UISegmentedControl). Вся полоса — 44: сегмент 40 + поля по 2. */
+.ios-segmented {
+  display: flex;
+  padding: 2px;
+  border-radius: var(--radius-nested);
+  background: var(--fill-2);
+  min-width: 0;
+}
+.ios-segmented > label,
+.ios-segmented > button {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 0 var(--s-1);
+  border: 0;
+  border-radius: var(--radius-segment);
+  background: none;
+  font: var(--t-footnote);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+/* Зона нажатия сегмента — до края полосы. */
+.ios-segmented > label::after,
+.ios-segmented > button::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+.ios-segmented > label:has(input:checked),
+.ios-segmented > .on {
+  background: var(--seg-on);
+  font-weight: var(--w-semibold);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04);
+}
+.ios-segmented input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Большая кнопка внизу экрана: той же высоты и скругления, что и группа ячеек. */
+.ios-btn-filled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--btn-filled-h);
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--radius-group);
+  background: var(--accent);
+  color: var(--accent-fg);
+  font: var(--t-nav);
+  cursor: pointer;
+  transition: opacity 180ms ease-out;
+}
+.ios-btn-filled:active:not(:disabled) {
+  opacity: 0.7;
+  transition: none;
+}
+.ios-btn-filled:disabled {
+  background: var(--fill);
+  color: var(--fg-faint);
+  cursor: default;
+}
+
+/* Метка: «Активный», «ошибка», заголовок вопроса. */
+.ios-tag {
+  flex: none;
+  display: inline-block;
+  padding: 2px var(--s-2);
+  border-radius: var(--radius-full);
+  font: var(--t-caption);
+  font-weight: var(--w-semibold);
+  background: var(--accent-soft);
+  color: var(--accent);
+  white-space: nowrap;
+}
+.ios-tag.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+/* Счётчик. */
+.ios-badge {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--s-1);
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--accent-fg);
+  font: var(--t-caption);
+  font-weight: var(--w-semibold);
+}
+.ios-badge.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Карточка над полем ввода: разрешение или вопрос. Текст стоит там же, где текст ячеек. */
+.ios-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border-radius: var(--radius-group);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.ios-card-kind {
+  font: var(--t-caption);
+  font-weight: var(--w-semibold);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.ios-card-title {
+  font: var(--t-nav);
+  overflow-wrap: anywhere;
+}
+
+/* Подтверждение внутри группы: вопрос и две кнопки. */
+.ios-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--cell-py) var(--cell-px);
+}
+.ios-confirm-q {
+  font: var(--t-subhead);
+  color: var(--fg-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ios-switch,
+  .ios-switch::before,
+  .ios-nav,
+  .ios-nav-title,
+  .ios-segmented > label {
+    transition: none;
+  }
+}
+
+/* ---------- Markdown ---------- */
+
+.md {
+  overflow-wrap: anywhere;
+}
+.md > :first-child {
+  margin-top: 0;
+}
+.md > :last-child {
+  margin-bottom: 0;
+}
+.md p,
+.md ul,
+.md ol,
+.md pre,
+.md blockquote,
+.md table {
+  margin: 0 0 var(--s-3);
+}
+.md ul,
+.md ol {
+  padding-left: var(--s-6);
+}
+.md h1,
+.md h2,
+.md h3,
+.md h4 {
+  font: var(--t-nav);
+  margin: var(--s-4) 0 var(--s-1);
+}
+.md strong,
+.md b {
+  font-weight: var(--w-semibold);
+}
+.md code {
+  font-size: 15px;
+  background: var(--bg-sunken);
+  /* Высота строки 1: моноширинный шрифт не раздвигает строку текста с интерлиньяжем 24. */
+  line-height: 1;
+  border-radius: var(--radius-tail);
+  padding: 0 var(--s-1);
+}
+.md pre {
+  background: var(--bg-elev);
+  border-radius: var(--radius-nested);
+  padding: var(--s-2) var(--s-3);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  white-space: pre;
+  overflow-wrap: normal;
+  font: var(--t-mono);
+  max-width: 100%;
+}
+.md pre code {
+  background: none;
+  padding: 0;
+  font: inherit;
+}
+.md blockquote {
+  box-shadow: inset 2px 0 0 var(--border-strong);
+  padding-left: var(--s-3);
+  color: var(--fg-muted);
+}
+.md table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font: var(--t-subhead);
+  max-width: 100%;
+}
+.md th,
+.md td {
+  border: 1px solid var(--border);
+  padding: var(--s-1) var(--s-2);
+}
+.md th {
+  font-weight: var(--w-semibold);
+}
+.md img {
+  max-width: 100%;
+  /* По верху строки: картинка в тексте не сдвигает строку с сетки. */
+  vertical-align: top;
+}
+.md hr {
+  border: 0;
+  height: 1px;
+  margin: var(--s-3) 0;
+  background: var(--border);
+}
