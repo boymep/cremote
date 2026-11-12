@@ -50,7 +50,7 @@
       { id: 'code', label: 'Код' },
     ],
     md: [
-      { id: 'render', label: 'Отрисовка' },
+      { id: 'render', label: 'Предпросмотр' },
       { id: 'code', label: 'Код' },
     ],
     svg: [
