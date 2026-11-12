@@ -7,12 +7,27 @@ marked.setOptions({ gfm: true, breaks: true });
 export interface MdContext {
   cwd?: string;
   sessionId?: string;
+  /** Абсолютный каталог открытого файла: относительные ссылки внутри него считаются от этого каталога. */
+  baseDir?: string;
 }
 
 export const FILE_API = '/api/file';
 
+/** Склеивает каталог и относительный путь, схлопывая `.` и `..`. */
+export function joinPath(base: string, rel: string): string {
+  const out: string[] = [];
+  for (const seg of `${base}/${rel}`.split('/')) {
+    if (seg === '..') out.pop();
+    else if (seg && seg !== '.') out.push(seg);
+  }
+  return `/${out.join('/')}`;
+}
+
 /** URL эндпоинта `GET /api/file` для пути (абсолютного, `~/…` или относительного). */
 export function fileUrl(path: string, ctx?: MdContext): string {
+  if (ctx?.baseDir && !path.startsWith('/') && !path.startsWith('~') && !/^file:/i.test(path)) {
+    path = joinPath(ctx.baseDir, path);
+  }
   const session = ctx?.sessionId ? `session=${encodeURIComponent(ctx.sessionId)}&` : '';
   return `${FILE_API}?${session}path=${encodeURIComponent(path)}`;
 }

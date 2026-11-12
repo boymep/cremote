@@ -2,9 +2,9 @@
   import { renderMarkdown } from '../markdown';
   import { openFile } from '../fileviewer.svelte';
 
-  let { text, cwd, sessionId }: { text: string; cwd?: string; sessionId?: string } = $props();
+  let { text, cwd, sessionId, baseDir }: { text: string; cwd?: string; sessionId?: string; baseDir?: string } = $props();
   // renderMarkdown пропускает HTML через DOMPurify.
-  const html = $derived(renderMarkdown(text, { cwd, sessionId }));
+  const html = $derived(renderMarkdown(text, { cwd, sessionId, baseDir }));
 
   /** Тап по ссылке на локальный файл открывает просмотрщик вместо новой вкладки. */
   function onclick(e: MouseEvent) {

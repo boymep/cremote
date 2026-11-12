@@ -3,7 +3,6 @@
   import { buildFeed } from '../feed';
   import MessageView from './MessageView.svelte';
   import SidechainGroup from './SidechainGroup.svelte';
-  import FileViewer from './FileViewer.svelte';
 
   let { messages, cwd, sessionId }: { messages: Message[]; cwd?: string; sessionId?: string } = $props();
   const model = $derived(buildFeed(messages));
@@ -17,4 +16,3 @@
   {/if}
 {/each}
 
-<FileViewer />

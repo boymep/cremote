@@ -13,7 +13,8 @@ import { ProcessTracker } from './processes.js';
 import { UpdateWatcher } from './update.js';
 import { createWs } from './ws.js';
 import { PushService } from './push.js';
-import { resolveFile } from './files.js';
+import { allowedRoots, resolveFile } from './files.js';
+import { createGrant, resolveRaw } from './grants.js';
 
 const MAX_UPLOAD = 10 * 1024 * 1024;
 const MAX_JSON = 2 * 1024 * 1024;
@@ -33,6 +34,40 @@ const MIME: Record<string, string> = {
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
 };
+
+/** Отдаёт файл целиком или по Range (200/206/416). */
+function sendRanged(
+  req: IncomingMessage,
+  res: ServerResponse,
+  file: string,
+  size: number,
+  headers: Record<string, string | number>,
+): void {
+  let start = 0;
+  let end = size - 1;
+  let status = 200;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range ?? ''));
+  if (m && (m[1] || m[2])) {
+    if (m[1]) {
+      start = Number(m[1]);
+      if (m[2]) end = Math.min(end, Number(m[2]));
+    } else {
+      start = Math.max(0, size - Number(m[2]));
+    }
+    if (start > end || start >= size) {
+      res.writeHead(416, { 'Content-Range': `bytes */${size}` });
+      return void res.end();
+    }
+    status = 206;
+    headers['Content-Range'] = `bytes ${start}-${end}/${size}`;
+  }
+  headers['Content-Length'] = size === 0 ? 0 : end - start + 1;
+  res.writeHead(status, headers);
+  if (req.method === 'HEAD' || size === 0) return void res.end();
+  const stream = fs.createReadStream(file, { start, end });
+  stream.on('error', () => res.destroy());
+  stream.pipe(res);
+}
 
 class HttpError extends Error {
   constructor(
@@ -163,7 +198,7 @@ export async function startServer(): Promise<http.Server> {
     if (!r.ok) return sendJson(res, r.status, { error: r.error });
     const { info } = r;
     if (q.get('meta') === '1') {
-      return sendJson(res, 200, { name: path.basename(info.file), size: info.size, kind: info.kind, mime: info.mime });
+      return sendJson(res, 200, { name: path.basename(info.file), size: info.size, kind: info.kind, mime: info.mime, path: info.file });
     }
     const headers: Record<string, string | number> = {
       'Content-Type': info.mime,
@@ -172,33 +207,40 @@ export async function startServer(): Promise<http.Server> {
       'Content-Security-Policy': "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox",
       'Cache-Control': 'private, max-age=60',
     };
+    // Chrome не открывает pdf внутри sandbox/default-src 'none', а pdf-просмотрщик браузера изолирован сам.
+    if (info.kind === 'pdf') delete headers['Content-Security-Policy'];
     if (info.attachment) {
       headers['Content-Disposition'] = `attachment; filename*=UTF-8''${encodeURIComponent(path.basename(info.file))}`;
     }
-    let start = 0;
-    let end = info.size - 1;
-    let status = 200;
-    const m = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range ?? ''));
-    if (m && (m[1] || m[2])) {
-      if (m[1]) {
-        start = Number(m[1]);
-        if (m[2]) end = Math.min(end, Number(m[2]));
-      } else {
-        start = Math.max(0, info.size - Number(m[2]));
-      }
-      if (start > end || start >= info.size) {
-        res.writeHead(416, { 'Content-Range': `bytes */${info.size}` });
-        return void res.end();
-      }
-      status = 206;
-      headers['Content-Range'] = `bytes ${start}-${end}/${info.size}`;
+    sendRanged(req, res, info.file, info.size, headers);
+  };
+
+  /** `GET /api/raw/<token>/<путь>`: без cookie, доступ по токену. Путь разбирается вручную: URL нормализует `%2e%2e`. */
+  const serveRaw = (req: IncomingMessage, res: ServerResponse) => {
+    const notFound = (status = 404) => {
+      res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'private, no-store' });
+      res.end('not found');
+    };
+    if (req.method !== 'GET' && req.method !== 'HEAD') return notFound(405);
+    const rawPath = (req.url ?? '').split(/[?#]/)[0].slice('/api/raw/'.length);
+    const parts = rawPath.split('/');
+    const token = parts.shift() ?? '';
+    let segments: string[];
+    try {
+      segments = parts.map((p) => decodeURIComponent(p));
+    } catch {
+      return notFound(400);
     }
-    headers['Content-Length'] = info.size === 0 ? 0 : end - start + 1;
-    res.writeHead(status, headers);
-    if (req.method === 'HEAD' || info.size === 0) return void res.end();
-    const stream = fs.createReadStream(info.file, { start, end });
-    stream.on('error', () => res.destroy());
-    stream.pipe(res);
+    const r = resolveRaw(token, segments);
+    if (!r.ok) return notFound(r.status);
+    sendRanged(req, res, r.file, r.size, {
+      'Content-Type': r.mime,
+      'Accept-Ranges': 'bytes',
+      'X-Content-Type-Options': 'nosniff',
+      'Content-Security-Policy': 'sandbox allow-scripts allow-popups allow-forms',
+      'Referrer-Policy': 'no-referrer',
+      'Cache-Control': 'private, no-store',
+    });
   };
 
   const handleApi = async (req: IncomingMessage, res: ServerResponse, pathname: string) => {
@@ -223,6 +265,17 @@ export async function startServer(): Promise<http.Server> {
       return sendJson(res, 200, { ok: true }, { 'Set-Cookie': clearCookie() });
     }
     if (pathname === '/api/file' && (req.method === 'GET' || req.method === 'HEAD')) return serveFile(req, res);
+    if (pathname === '/api/file/grant' && req.method === 'POST') {
+      const body = await readJson(req);
+      const sid = typeof body?.session === 'string' ? body.session : '';
+      const cwd = sid ? hub.sessions().find((s) => s.id === sid)?.cwd || undefined : undefined;
+      const opts = { cwd, uploadsDir: UPLOADS_DIR, extraRoots: ensureConfig().fileRoots };
+      const r = resolveFile(typeof body?.path === 'string' ? body.path : '', opts);
+      if (!r.ok) return sendJson(res, r.status, { error: r.error });
+      const token = createGrant(r.info.file, allowedRoots(opts));
+      const url = `/api/raw/${token}/${encodeURIComponent(path.basename(r.info.file))}`;
+      return sendJson(res, 200, { token, url, expiresIn: 1800 });
+    }
     if (pathname === '/api/projects' && req.method === 'GET') return sendJson(res, 200, hub.projects());
     if (pathname === '/api/models' && req.method === 'GET') return sendJson(res, 200, await hub.sdk!.models());
     if (pathname === '/api/accounts' && req.method === 'GET') {
@@ -265,6 +318,7 @@ export async function startServer(): Promise<http.Server> {
     const pathname = new URL(req.url ?? '/', 'http://x').pathname;
     const run = async () => {
       if (pathname.startsWith('/hook/')) return handleHookRequest(req, res, pathname.slice('/hook/'.length));
+      if (pathname.startsWith('/api/raw/')) return serveRaw(req, res);
       if (pathname.startsWith('/api/')) return handleApi(req, res, pathname);
       if (req.method !== 'GET' && req.method !== 'HEAD') return sendJson(res, 405, { error: 'method not allowed' });
       return serveStatic(req, res, pathname);

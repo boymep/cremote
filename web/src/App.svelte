@@ -6,6 +6,7 @@
   import SessionView from './lib/components/SessionView.svelte';
   import NewSession from './lib/components/NewSession.svelte';
   import Settings from './lib/components/Settings.svelte';
+  import FileViewer from './lib/components/FileViewer.svelte';
   import Toasts from './lib/components/Toasts.svelte';
   import { haptic } from './lib/haptics';
 
@@ -224,6 +225,7 @@
   {/if}
 {/if}
 
+{#if app.auth === 'ok'}<FileViewer />{/if}
 <Toasts />
 
 <style>
