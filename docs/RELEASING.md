@@ -2,10 +2,19 @@
 
 Публикация в npm идёт из GitHub Actions при пуше тега `v*` ([release.yml](../.github/workflows/release.yml)).
 
-## Один раз: токен npm
+## Один раз: доверенная публикация
 
-1. На npmjs.com создайте Granular Access Token с правом Read and write на пакет `cremote` (для первой публикации — на все пакеты аккаунта, затем сузьте).
-2. В репозитории на GitHub: Settings → Secrets and variables → Actions → New repository secret. Имя `NPM_TOKEN`, значение — токен.
+Workflow публикует пакет через trusted publishing (OIDC). Токен npm не нужен.
+
+1. Первую версию опубликуйте вручную, чтобы пакет появился в npm:
+
+   ```sh
+   npm login
+   npm publish --access public
+   ```
+
+2. На npmjs.com откройте пакет `cremote` → Settings → Trusted Publisher → GitHub Actions. Укажите владельца `boymep`, репозиторий `cremote`, файл workflow `release.yml`.
+3. Там же в Publishing access включите «Require two-factor authentication and disallow tokens». Тогда публиковать сможет только этот workflow и вы с 2FA.
 
 ## Каждый выпуск
 
