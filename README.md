@@ -63,7 +63,7 @@ cremote — это маленький сервер на вашем компью�
 1. Установите пакет:
 
    ```sh
-   npm i -g cremote
+   npm i -g @boymep/cremote
    ```
 
 2. Запустите мастер настройки:
@@ -299,7 +299,7 @@ cremote update --check   # только проверить
 ```sh
 cremote service uninstall
 cremote hooks uninstall
-npm rm -g cremote
+npm rm -g @boymep/cremote
 rm -rf ~/.cremote
 ```
 

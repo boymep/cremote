@@ -4,7 +4,8 @@ import path from 'node:path';
 import { servicesInstalled } from './service.js';
 import { CREMOTE_HOME, LOGS_DIR, ROOT_DIR, getVersion, writeJsonAtomic } from './config.js';
 
-const REGISTRY_URL = 'https://registry.npmjs.org/cremote/latest';
+export const PACKAGE_NAME = '@boymep/cremote';
+const REGISTRY_URL = 'https://registry.npmjs.org/@boymep%2fcremote/latest';
 const CACHE_PATH = path.join(CREMOTE_HOME, 'update.json');
 export const UPDATE_LOG = path.join(LOGS_DIR, 'update.log');
 
@@ -114,7 +115,7 @@ export function installKind(): InstallKind {
 }
 
 export const GIT_HINT = 'Обновите через git pull && npm ci && npm run build';
-export const UNKNOWN_HINT = 'Не удалось определить способ установки. Обновите вручную: npm i -g cremote@latest';
+export const UNKNOWN_HINT = 'Не удалось определить способ установки. Обновите вручную: npm i -g @boymep/cremote@latest';
 
 /** Can the UI/`cremote update` update this install automatically? */
 export function canUpdate(): boolean {
@@ -156,8 +157,8 @@ export function runUpdate(latest: string): void {
   if (!globalRoot) throw new Error(UNKNOWN_HINT);
   log(`update ${getVersion()} -> ${latest}`);
   try {
-    run(npmPath(), ['i', '-g', `cremote@${latest}`]);
-    const newBin = path.join(globalRoot, 'cremote', 'dist', 'server', 'cli.js');
+    run(npmPath(), ['i', '-g', `${PACKAGE_NAME}@${latest}`]);
+    const newBin = path.join(globalRoot, '@boymep', 'cremote', 'dist', 'server', 'cli.js');
     if (!fs.existsSync(newBin)) throw new Error(`Не найден ${newBin} после установки`);
     run(process.execPath, [newBin, 'hooks', 'install']);
     // Regenerates plist/unit with the current node and package paths and reloads (restarts) them.

@@ -13,7 +13,7 @@ Workflow публикует пакет через trusted publishing (OIDC). Т�
    npm publish --access public
    ```
 
-2. На npmjs.com откройте пакет `cremote` → Settings → Trusted Publisher → GitHub Actions. Укажите владельца `boymep`, репозиторий `cremote`, файл workflow `release.yml`.
+2. На npmjs.com откройте пакет `@boymep/cremote` → Settings → Trusted Publisher → GitHub Actions. Укажите владельца `boymep`, репозиторий `cremote`, файл workflow `release.yml`.
 3. Там же в Publishing access включите «Require two-factor authentication and disallow tokens». Тогда публиковать сможет только этот workflow и вы с 2FA.
 
 ## Каждый выпуск

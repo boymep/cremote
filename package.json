@@ -1,5 +1,5 @@
 {
-  "name": "cremote",
+  "name": "@boymep/cremote",
   "version": "0.1.0",
   "type": "module",
   "description": "Remote control for Claude Code sessions from a phone",
