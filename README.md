@@ -1,8 +1,6 @@
 # cremote
 
-**cremote** is a phone web app (PWA) for Claude Code. It shows the Claude Code sessions running on your computer (CLI and the VS Code extension) and lets you answer permission requests and questions, send messages, stop a run and start new sessions. It runs on macOS (launchd) and Linux (systemd --user). MIT license.
-
-Дальше всё на русском. Это руководство от установки до удаления.
+**cremote** — веб-приложение (PWA) для телефона, которое управляет Claude Code. Оно показывает сессии на вашем компьютере (CLI и расширение VS Code): можно отвечать на запросы разрешений и вопросы, отправлять сообщения, останавливать запуск и начинать новые сессии. Работает на macOS (launchd) и Linux (systemd --user). Лицензия MIT.
 
 ## Содержание
 
