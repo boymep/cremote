@@ -1,6 +1,6 @@
 {
   "name": "@boymep/cremote",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Remote control for Claude Code sessions from a phone",
   "license": "MIT",
