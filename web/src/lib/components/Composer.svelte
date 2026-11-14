@@ -103,7 +103,7 @@
   {:else}
     <AttachmentStrip {att} />
     <div class="row">
-      <button class="icon-btn attach" type="button" aria-label="Прикрепить картинку" onclick={() => fileInput?.click()}>
+      <button class="icon-btn attach" type="button" aria-label="Прикрепить файл" onclick={() => fileInput?.click()}>
         <svg class="ios-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"
           ><path
             d="M21 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"
@@ -114,7 +114,7 @@
         bind:this={fileInput}
         class="sr-only"
         type="file"
-        accept="image/*"
+        accept="image/*,*/*"
         multiple
         onchange={(e) => {
           att.add(e.currentTarget.files);

@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import { Auth, clearCookie, clientIp, isLoopback, sessionCookie, verifyPassword } from './auth.js';
 import { HOST, PORT, UPLOADS_DIR, WEB_DIST, ensureConfig, getAutoUpdate, getVersion, readState, writeConfig, writeState, type Config } from './config.js';
 import { HOOK_EVENTS, handleHook, type HookEvent } from './hooks.js';
-import { Hub, mediaToExt } from './hub.js';
+import { Hub, mediaToExt, safeUploadName } from './hub.js';
 import { SdkManager } from './sdk.js';
 import { TranscriptStore } from './transcripts.js';
 import { AccountsMonitor } from './accounts.js';
@@ -13,7 +13,7 @@ import { ProcessTracker } from './processes.js';
 import { UpdateWatcher } from './update.js';
 import { createWs } from './ws.js';
 import { PushService } from './push.js';
-import { allowedRoots, resolveFile } from './files.js';
+import { allowedRoots, classify, resolveFile } from './files.js';
 import { createGrant, resolveRaw } from './grants.js';
 
 const MAX_UPLOAD = 10 * 1024 * 1024;
@@ -284,15 +284,20 @@ export async function startServer(): Promise<http.Server> {
     }
     if (pathname === '/api/upload' && req.method === 'POST') {
       const mediaType = String(req.headers['content-type'] ?? '').split(';')[0].trim().toLowerCase();
-      const ext = mediaType.startsWith('image/') ? mediaToExt(mediaType) : null;
-      if (!ext) return sendJson(res, 415, { error: 'Можно загружать только картинки' });
       if (Number(req.headers['content-length'] ?? 0) > MAX_UPLOAD) return sendJson(res, 413, { error: 'Файл больше 10 МБ' });
+      const imageExt = mediaType.startsWith('image/') ? mediaToExt(mediaType) : null;
+      // Картинки хранятся как <id>.<ext>, документы как <id>.<безопасное имя>; имя приходит в X-File-Name.
+      let ext = imageExt;
+      if (!ext) {
+        if (mediaType.startsWith('image/')) return sendJson(res, 415, { error: `Формат ${mediaType} не поддерживается` });
+        ext = safeUploadName(String(req.headers['x-file-name'] ?? ''));
+      }
       const data = await readBody(req, MAX_UPLOAD);
       if (!data.length) return sendJson(res, 400, { error: 'Пустой файл' });
       const id = crypto.randomBytes(16).toString('hex');
       const file = path.join(UPLOADS_DIR, `${id}.${ext}`);
       fs.writeFileSync(file, data, { mode: 0o600 });
-      return sendJson(res, 200, { id, path: file, mediaType: mediaType === 'image/jpg' ? 'image/jpeg' : mediaType });
+      return sendJson(res, 200, { id, path: file, mediaType: imageExt ? (mediaType === 'image/jpg' ? 'image/jpeg' : mediaType) : classify(file).mime.split(';')[0], size: data.length });
     }
     if (pathname === '/api/push/key' && req.method === 'GET') return sendJson(res, 200, { publicKey: push.publicKey });
     if (pathname.startsWith('/api/push/') && req.method === 'POST') {

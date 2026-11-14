@@ -3,7 +3,10 @@ import { app } from './state.svelte';
 export interface Attachment {
   key: number;
   name: string;
+  /** Картинка: превью; документ: пустая строка. */
   preview: string;
+  isImage: boolean;
+  size: number;
   status: 'uploading' | 'done' | 'error';
   id?: string;
   error?: string;
@@ -12,7 +15,7 @@ export interface Attachment {
 const MAX_BYTES = 10 * 1024 * 1024;
 let seq = 0;
 
-/** Картинки для сообщения: превью и загрузка через /api/upload сразу после выбора. */
+/** Картинки и документы для сообщения: превью и загрузка через /api/upload сразу после выбора. */
 export class Attachments {
   items = $state<Attachment[]>([]);
 
@@ -23,15 +26,14 @@ export class Attachments {
   add(files: FileList | File[] | null) {
     if (!files) return;
     for (const file of Array.from(files)) {
-      if (!file.type.startsWith('image/')) {
-        app.toast(`${file.name}: можно прикреплять только картинки`, 'error');
-        continue;
-      }
+      const isImage = file.type.startsWith('image/');
       const key = ++seq;
       const item: Attachment = {
         key,
         name: file.name,
-        preview: URL.createObjectURL(file),
+        preview: isImage ? URL.createObjectURL(file) : '',
+        isImage,
+        size: file.size,
         status: file.size > MAX_BYTES ? 'error' : 'uploading',
         error: file.size > MAX_BYTES ? 'Больше 10 МБ' : undefined,
       };
@@ -56,12 +58,19 @@ export class Attachments {
 
   remove(key: number) {
     const a = this.items.find((x) => x.key === key);
-    if (a) URL.revokeObjectURL(a.preview);
+    if (a?.preview) URL.revokeObjectURL(a.preview);
     this.items = this.items.filter((x) => x.key !== key);
   }
 
   clear() {
-    for (const a of this.items) URL.revokeObjectURL(a.preview);
+    for (const a of this.items) if (a.preview) URL.revokeObjectURL(a.preview);
     this.items = [];
   }
+}
+
+/** Размер файла для чипа: «120 КБ», «1,4 МБ». */
+export function formatSize(n: number): string {
+  if (n < 1024) return `${n} Б`;
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} КБ`;
+  return `${(n / 1024 / 1024).toFixed(1).replace('.', ',')} МБ`;
 }

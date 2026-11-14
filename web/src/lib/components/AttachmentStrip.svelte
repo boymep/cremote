@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Attachments } from '../attachments.svelte';
+  import { formatSize, type Attachments } from '../attachments.svelte';
 
   let { att }: { att: Attachments } = $props();
 </script>
@@ -7,8 +7,17 @@
 {#if att.items.length > 0}
   <ul class="strip">
     {#each att.items as a (a.key)}
-      <li class={a.status} title={a.error ?? a.name}>
-        <img src={a.preview} alt={a.name} />
+      <li class="{a.status} {a.isImage ? 'img' : 'doc'}" title={a.error ?? a.name}>
+        {#if a.isImage}
+          <img src={a.preview} alt={a.name} />
+        {:else}
+          <svg class="ios-icon file" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"
+            ><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></svg
+          >
+          <span class="meta"
+            ><span class="name">{a.name}</span><span class="size">{a.error ?? formatSize(a.size)}</span></span
+          >
+        {/if}
         {#if a.status === 'uploading'}<span class="ov">…</span>{/if}
         {#if a.status === 'error'}<span class="ov err">!</span>{/if}
         <button type="button" class="rm" aria-label="Убрать {a.name}" onclick={() => att.remove(a.key)}
@@ -37,6 +46,34 @@
     height: 64px;
     border-radius: var(--radius-nested);
     box-shadow: 0 0 0 0.5px var(--border-strong);
+  }
+  li.doc {
+    width: auto;
+    max-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: 0 var(--s-8) 0 var(--s-2);
+    background: var(--bg-elev);
+  }
+  .file {
+    flex: none;
+    color: var(--fg-muted);
+  }
+  .meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font: var(--t-subhead);
+  }
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .size {
+    color: var(--fg-muted);
+    font-size: 12px;
   }
   li.error {
     box-shadow: 0 0 0 1px var(--danger);

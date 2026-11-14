@@ -939,8 +939,7 @@ textarea.ios-input {
 .md ul,
 .md ol,
 .md pre,
-.md blockquote,
-.md table {
+.md blockquote {
   margin: 0 0 var(--s-3);
 }
 .md ul,
@@ -987,17 +986,35 @@ textarea.ios-input {
   padding-left: var(--s-3);
   color: var(--fg-muted);
 }
-.md table {
-  display: block;
+/* Таблица живёт в прокручиваемой обёртке: колонки не сжимаются, страница не уезжает вбок. */
+.md .table-wrap {
+  max-width: 100%;
+  margin: 0 0 var(--s-3);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.md .table-wrap table {
+  width: max-content;
+  max-width: none;
+  margin: 0;
   border-collapse: collapse;
   font: var(--t-subhead);
-  max-width: 100%;
 }
 .md th,
 .md td {
   border: 1px solid var(--border);
   padding: var(--s-1) var(--s-2);
+  min-width: 64px;
+  max-width: 280px;
+  vertical-align: top;
+  /* Короткие ячейки не ломаются по буквам; длинный текст переносится по словам до max-width. */
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.md td code,
+.md th code {
+  white-space: nowrap;
 }
 .md th {
   font-weight: var(--w-semibold);

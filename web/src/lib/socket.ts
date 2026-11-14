@@ -26,7 +26,7 @@ export interface Api {
   logout(): Promise<void>;
   projects(): Promise<string[]>;
   models(): Promise<ModelOption[]>;
-  upload(file: Blob): Promise<{ id: string; path: string; mediaType: string }>;
+  upload(file: File): Promise<{ id: string; path: string; mediaType: string }>;
 }
 
 export const realApi: Api = {
@@ -78,7 +78,7 @@ export const realApi: Api = {
     const r = await fetch('/api/upload', {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      headers: { 'Content-Type': file.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(file.name) },
       body: file,
     });
     if (r.status === 413) throw new Error('Файл больше 10 МБ');

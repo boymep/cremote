@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import { query, type Query, type SDKUserMessage, type PermissionMode, type PermissionResult } from '@anthropic-ai/claude-agent-sdk';
-import { toolHint, type Hub, type Upload } from './hub.js';
+import { documentLines, toolHint, type Hub, type Upload } from './hub.js';
 import { UserError, type SessionStatus } from './types.js';
 
 const MODES = new Set(['default', 'acceptEdits', 'plan', 'bypassPermissions', 'dontAsk', 'auto']);
@@ -79,11 +79,13 @@ const IDLE_CLOSE_MS = 30 * 60 * 1000;
 
 function userMessage(text: string, uploads: Upload[]): SDKUserMessage {
   const content: any[] = [];
-  for (const u of uploads) {
+  for (const u of uploads.filter((x) => x.mediaType.startsWith('image/'))) {
     if (!API_IMAGE_TYPES.has(u.mediaType)) throw new UserError(`Формат ${u.mediaType} не поддерживается, нужен JPEG, PNG, GIF или WebP`);
     content.push({ type: 'image', source: { type: 'base64', media_type: u.mediaType, data: fs.readFileSync(u.path).toString('base64') } });
   }
-  if (text.trim()) content.push({ type: 'text', text });
+  // Документы уходят путём в тексте: Claude откроет их через Read.
+  const full = (text + documentLines(uploads)).trim();
+  if (full) content.push({ type: 'text', text: full });
   return { type: 'user', message: { role: 'user', content }, parent_tool_use_id: null };
 }
 

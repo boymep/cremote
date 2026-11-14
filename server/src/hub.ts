@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import { UPLOADS_DIR, type QueuedMessage, type State } from './config.js';
 import { PendingRegistry } from './pending.js';
 import { TranscriptStore } from './transcripts.js';
+import { classify } from './files.js';
 import { PHONE_PREFIX } from './normalize.js';
 import type { SdkManager } from './sdk.js';
 import type { AccountsMonitor } from './accounts.js';
@@ -22,10 +23,50 @@ const RESUME_GUARD_ERROR = 'Сессия, возможно, ещё открыт�
 const QUEUE_SEPARATOR = '\n\n---\n\n';
 export const DEFAULT_PHONE_PRESENCE_MS = 30 * 60 * 1000;
 
-/** Message text plus paths of attached images. */
-export function withAttachments(text: string, uploads: { path: string }[]): string {
-  if (!uploads.length) return text;
-  return `${text}\n\n[Attached images — open them with the Read tool: ${uploads.map((u) => u.path).join(', ')}]`;
+/** Message text plus paths of attached images and documents. */
+export function withAttachments(text: string, uploads: Upload[]): string {
+  const images = uploads.filter((u) => u.mediaType.startsWith('image/'));
+  let out = text;
+  if (images.length) out += `\n\n[Attached images — open them with the Read tool: ${images.map((u) => u.path).join(', ')}]`;
+  return out + documentLines(uploads);
+}
+
+/** Lines `Вложение: /abs/path (type, size)` for non-image uploads; Claude opens them with Read. */
+export function documentLines(uploads: Upload[]): string {
+  return uploads
+    .filter((u) => !u.mediaType.startsWith('image/'))
+    .map((u) => `\n\nВложение: ${u.path} (${u.mediaType}, ${formatSize(u.size)})`)
+    .join('');
+}
+
+function formatSize(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic']);
+
+/** Safe file name for an uploaded document: no path parts or control chars, extension kept, never a bare image ext. */
+export function safeUploadName(raw: string): string {
+  let name = '';
+  try {
+    name = decodeURIComponent(raw);
+  } catch {
+    name = raw;
+  }
+  name = path.basename(name.replace(/\\/g, '/'))
+    .normalize('NFC')
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u001f\u007f<>:"|?*\s]+/g, '_')
+    .replace(/^[._]+/, '');
+  if (name.length > 100) {
+    const ext = path.extname(name).slice(0, 12);
+    name = name.slice(0, 100 - ext.length) + ext;
+  }
+  if (!name) name = 'file';
+  if (IMAGE_EXTS.has(name.toLowerCase())) name += '.bin';
+  return name;
 }
 
 /** Persisted live entries older than this are dropped on start. */
@@ -69,6 +110,7 @@ export interface Upload {
   id: string;
   path: string;
   mediaType: string;
+  size: number;
 }
 
 /**
@@ -204,7 +246,7 @@ export class Hub extends EventEmitter {
     this.saveState();
     this.sessionsChanged();
     const parts = q.map((m) => {
-      let uploads: { path: string }[] = [];
+      let uploads: Upload[] = [];
       try {
         uploads = this.resolveUploads(m.attachments);
       } catch {
@@ -360,7 +402,10 @@ export class Hub extends EventEmitter {
       const name = fs.readdirSync(UPLOADS_DIR).find((f) => f.startsWith(`${id}.`));
       if (!name) throw new UserError('Вложение не найдено, загрузите его заново');
       const ext = name.slice(id.length + 1);
-      return { id, path: path.join(UPLOADS_DIR, name), mediaType: extToMedia(ext) };
+      const file = path.join(UPLOADS_DIR, name);
+      const isImage = IMAGE_EXTS.has(ext.toLowerCase());
+      const mediaType = isImage ? extToMedia(ext) : classify(file).mime.split(';')[0];
+      return { id, path: file, mediaType, size: fs.statSync(file).size };
     });
   }
 

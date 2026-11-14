@@ -86,6 +86,8 @@ export function renderMarkdown(src: string, ctx?: MdContext): string {
     const html = codespan(token);
     return looksLikePath(token.text) ? `<a href="${fileUrl(token.text, ctx)}">${html}</a>` : html;
   };
+  const table = renderer.table.bind(renderer);
+  renderer.table = (token: Tokens.Table) => `<div class="table-wrap">${table(token)}</div>`;
   const html = marked.parse(src, {
     async: false,
     renderer,

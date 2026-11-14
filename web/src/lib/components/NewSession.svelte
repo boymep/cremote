@@ -293,7 +293,7 @@
                 d="M4 17l5-5 4 4 3-3 4 4"
               /></svg
             >
-            Прикрепить картинку
+            Прикрепить файл
           </button>
         </li>
       </ul>
@@ -301,7 +301,7 @@
         bind:this={fileInput}
         class="sr-only"
         type="file"
-        accept="image/*"
+        accept="image/*,*/*"
         multiple
         onchange={(e) => {
           att.add(e.currentTarget.files);
