@@ -14,6 +14,7 @@
   },
   "files": [
     "dist",
+    "!dist/server/*.test.*",
     "web/dist",
     "hooks",
     "bin",
@@ -28,6 +29,7 @@
     "build:web": "npm --prefix web run build",
     "build": "npm run build:server && npm run build:web",
     "prepack": "npm run build",
+    "test": "tsc -p tsconfig.json && node --test dist/server/tunnel.test.js",
     "start": "node dist/server/cli.js start",
     "dev": "tsc -p tsconfig.json --watch",
     "deploy:web": "npm run build:web && rsync -az --delete web/dist/ \"${CREMOTE_DEPLOY:?set CREMOTE_DEPLOY=user@host:/var/www/cremote/}\""

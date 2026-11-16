@@ -3,10 +3,11 @@ import http from 'node:http';
 import { spawnSync } from 'node:child_process';
 import { HOOK_SCRIPT, PORT, getAccess, getVersion, readConfig } from './config.js';
 import { EXPECTED_HOOK_EVENTS, listInstalledHooks } from './install.js';
+import { probeTunnel, tunnelRestartHint } from './tunnel.js';
 import { currentPlatform, findBinary, serviceStatus } from './service.js';
 import { MIN_NODE_MAJOR, claudeLoggedIn, findClaude, findTailscale, nodeOk, tailscaleDnsName, testSsh } from './checks.js';
 
-function getHealth(port: number): Promise<{ ok: boolean; version?: string; error?: string }> {
+function getHealth(port: number): Promise<{ ok: boolean; version?: string; instance?: string; error?: string }> {
   return new Promise((resolve) => {
     const req = http.get({ host: '127.0.0.1', port, path: '/api/health', timeout: 3000 }, (res) => {
       let body = '';
@@ -15,7 +16,7 @@ function getHealth(port: number): Promise<{ ok: boolean; version?: string; error
       res.on('end', () => {
         try {
           const j = JSON.parse(body);
-          resolve(res.statusCode === 200 && j.ok ? { ok: true, version: j.version } : { ok: false, error: `HTTP ${res.statusCode}` });
+          resolve(res.statusCode === 200 && j.ok ? { ok: true, version: j.version, instance: j.instance } : { ok: false, error: `HTTP ${res.statusCode}` });
         } catch {
           resolve({ ok: false, error: `HTTP ${res.statusCode}, неожиданный ответ` });
         }
@@ -104,6 +105,20 @@ export async function doctor(): Promise<number> {
       const t = testSsh(access.ssh.target, access.ssh.identityFile);
       if (t.ok) good(`SSH до ${access.ssh.target} работает`);
       else bad(`SSH до ${access.ssh.target} не работает${t.error ? `: ${t.error}` : ''}`, 'Проверьте ключ и адрес: ssh -o BatchMode=yes <адрес> true');
+      if (t.ok && h.ok) {
+        const r = await probeTunnel(access, h.instance);
+        const where = r.via === 'public' ? 'по публичному адресу' : `через ${access.ssh.target}:${access.ssh.remotePort}`;
+        if (r.ok) good(`Туннель: сервер доступен ${where}`);
+        else {
+          let hint = 'Перезапустите только туннель (сервер не трогайте)';
+          try {
+            hint += `: ${tunnelRestartHint()}`;
+          } catch {
+            /* unsupported platform */
+          }
+          bad(`Туннель не пропускает трафик ${where}: ${r.error}`, hint);
+        }
+      }
     }
   } else if (access.mode === 'cloudflare') {
     if (findBinary('cloudflared')) good('cloudflared найден');

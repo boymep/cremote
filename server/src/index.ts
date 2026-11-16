@@ -12,6 +12,7 @@ import { AccountsMonitor } from './accounts.js';
 import { ProcessTracker } from './processes.js';
 import { UpdateWatcher } from './update.js';
 import { createWs } from './ws.js';
+import { INSTANCE_ID, startTunnelWatchdog } from './tunnel.js';
 import { PushService } from './push.js';
 import { allowedRoots, classify, resolveFile } from './files.js';
 import { createGrant, resolveRaw } from './grants.js';
@@ -256,7 +257,7 @@ export async function startServer(): Promise<http.Server> {
       const { token, maxAgeSec } = auth.createSession();
       return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie(req, token, maxAgeSec) });
     }
-    if (pathname === '/api/health' && req.method === 'GET') return sendJson(res, 200, { ok: true, version: getVersion() });
+    if (pathname === '/api/health' && req.method === 'GET') return sendJson(res, 200, { ok: true, version: getVersion(), instance: INSTANCE_ID });
     if (!auth.isAuthed(req)) return sendJson(res, 401, { error: 'Требуется вход' });
 
     if (pathname === '/api/me' && req.method === 'GET') return sendJson(res, 200, { ok: true });
@@ -345,7 +346,10 @@ export async function startServer(): Promise<http.Server> {
   });
   console.log(`[cremote] listening on http://${HOST}:${PORT}, ${transcripts.list().length} transcripts indexed`);
 
+  const stopWatchdog = startTunnelWatchdog();
+
   const shutdown = () => {
+    stopWatchdog();
     hub.persistLive();
     accounts.stop();
     updates.stop();

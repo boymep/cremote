@@ -358,6 +358,15 @@ export function serviceRestart(): string[] {
   return done;
 }
 
+/** Restarts only the tunnel job (never the server: that would kill hosted sessions). */
+export function tunnelRestart(): void {
+  if (currentPlatform() === 'darwin') {
+    execFileSync('launchctl', ['kickstart', '-k', `gui/${process.getuid?.() ?? 501}/${TUNNEL_LABEL}`], { stdio: 'ignore' });
+  } else {
+    systemctl(['restart', TUNNEL_UNIT], true);
+  }
+}
+
 export interface JobStatus {
   name: string;
   installed: boolean;
