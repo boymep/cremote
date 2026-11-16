@@ -13,6 +13,8 @@ export interface Config {
   access?: AccessConfig;
   /** Legacy: ssh target for the reverse tunnel, e.g. "user@host". Use `access` instead. */
   tunnel?: string;
+  /** Restart the ssh tunnel automatically when it stops carrying traffic (ssh mode, under the service). Default true; false disables. */
+  tunnelWatchdog?: boolean;
   /** Web Push VAPID subject. Default mailto:cremote@example.com */
   vapidSubject?: string;
   /** Update behaviour. Default 'notify'. */
